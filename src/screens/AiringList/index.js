@@ -2,8 +2,9 @@ import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {FlatList, ActivityIndicator, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CardCell from '../../components/CardCell';
+import SearchBar from '../../components/SearchBar';
 
-const AiringList = ({}) => {
+const AiringList = ({navigation}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [result, setResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +20,6 @@ const AiringList = ({}) => {
   const fetchAnimeList = useCallback(async () => {
     try {
       setIsLoading(true);
-
       const response = await fetch(
         `https://api.jikan.moe/v4/anime?q=${keyword}&status=${STATUS}&page=${currentPage}`,
         {
@@ -31,7 +31,8 @@ const AiringList = ({}) => {
         },
       ).then(res => res.json());
 
-      // console.warn(await response);
+      console.warn(await response);
+
       if (await response) {
         setIsLoading(false);
         setResult(result?.concat(response?.data));
@@ -43,9 +44,13 @@ const AiringList = ({}) => {
     }
   }, [currentPage, keyword, result]);
 
-  const onPressCell = () => {};
+  const onPressCell = id => {
+    navigation.navigate('Details', {
+      id: id,
+    });
+  };
 
-  const renderItem = ({item, _}) => {
+  const renderItem = ({item, index}) => {
     const descriptionObject = [
       {
         key: 'Title',
@@ -72,8 +77,10 @@ const AiringList = ({}) => {
         value: item?.rating,
       },
     ];
+
     return (
       <CardCell
+        key={index}
         item={item}
         descriptionObject={descriptionObject}
         onPress={onPressCell}
@@ -90,8 +97,34 @@ const AiringList = ({}) => {
     await fetchAnimeList();
   };
 
+  const onChangeText = async text => {
+    setKeyword(text);
+    setCurrentPage(1);
+    setResult([]);
+    await fetchAnimeList();
+  };
+
+  const renderHeader = () => {
+    // if (!isLoading) {
+    return (
+      <SearchBar
+        value={keyword}
+        placeholder="Search title here.."
+        onChangeText={onChangeText}
+      />
+    );
+    // }
+  };
+
+  const pullToRefresh = async () => {
+    setCurrentPage(1);
+    setResult([]);
+
+    await fetchAnimeList();
+  };
+
   const renderFooter = () => {
-    if (isLoading) {
+    if (isLoading && currentPage !== 1) {
       return (
         <ActivityIndicator
           size="small"
@@ -114,6 +147,9 @@ const AiringList = ({}) => {
       keyExtractor={keyExtractor}
       onEndReached={fetchNextPage}
       ListFooterComponent={renderFooter}
+      ListHeaderComponent={renderHeader}
+      onRefresh={pullToRefresh}
+      refreshing={isLoading}
       style={[styles.container, {top: top}]}
     />
   );

@@ -28,7 +28,7 @@ const CardCell = ({item, descriptionObject, onPress}) => {
           {descriptionObject.map(desc => {
             return (
               <View style={styles.descriptionLabel}>
-                <Text>{desc?.key}: </Text>
+                <Text style={styles.descLabel}>{desc?.key}: </Text>
                 <Text>{desc?.value ?? '-'}</Text>
               </View>
             );
@@ -66,6 +66,10 @@ const styles = StyleSheet.create({
     height: 0.5,
     backgroundColor: 'grey',
     marginTop: 5,
+  },
+  descLabel: {
+    fontWeight: '600',
+    fontSize: 12,
   },
 });
 
