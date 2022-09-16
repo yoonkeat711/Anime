@@ -1,0 +1,1 @@
+export const FAVOURITES_ANIME = '@FAVOURITE_ANIME';

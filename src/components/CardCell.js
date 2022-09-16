@@ -10,10 +10,15 @@ import {TouchableOpacity, Text, View, Image, StyleSheet} from 'react-native';
 //       value: item?.type,
 //     }]
 
-const CardCell = ({item, descriptionObject, onPress}) => {
+const CardCell = ({item, descriptionObject, onPress, onPressSave}) => {
   const onPressCell = () => {
     onPress(item?.mal_id);
   };
+
+  const onPressFavourite = () => {
+    onPressSave(item);
+  };
+
   return (
     <TouchableOpacity
       onPress={onPressCell}
@@ -35,6 +40,9 @@ const CardCell = ({item, descriptionObject, onPress}) => {
           })}
         </View>
       </View>
+      <Text style={styles.saveText} onPress={onPressFavourite}>
+        Save
+      </Text>
       <View style={styles.separator} />
     </TouchableOpacity>
   );
@@ -70,6 +78,10 @@ const styles = StyleSheet.create({
   descLabel: {
     fontWeight: '600',
     fontSize: 12,
+  },
+  saveText: {
+    alignSelf: 'flex-end',
+    fontSize: 10,
   },
 });
 

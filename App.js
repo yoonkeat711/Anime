@@ -7,71 +7,66 @@
  */
 
 import React from 'react';
-// import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-import {NavigationContainer, TabActions} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import AiringList from './src/screens/AiringList';
 import CompleteList from './src/screens/CompleteList';
 import UpcomingList from './src/screens/UpcomingList';
 import AiringStackScreen from './src/stacks/AiringStack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import FavouritesStackScreen from './src/stacks/FavouritesStack';
 
 const App = () => {
-  // const isDarkMode = useColorScheme() === 'dark';
-
-  // const backgroundStyle = {
-  //   backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  // };
-
-  const Tab = createBottomTabNavigator();
+  const Drawer = createDrawerNavigator();
 
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Tab.Screen name="Airing" component={AiringStackScreen} />
-        <Tab.Screen name="Complete" component={CompleteList} />
-        <Tab.Screen name="Upcoming" component={UpcomingList} />
-      </Tab.Navigator>
+      <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Screen
+          name="Home"
+          component={BottomTabNavigator}
+          options={{
+            title: 'Home',
+            headerStyle: {
+              backgroundColor: 'lightblue',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+        <Drawer.Screen
+          name="Favourites"
+          component={FavouritesStackScreen}
+          options={{
+            title: 'Favourites',
+            headerStyle: {
+              backgroundColor: 'lightblue',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 };
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const BottomTabNavigator = () => {
+  const Tab = createBottomTabNavigator();
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Tab.Screen name="Airing" component={AiringStackScreen} />
+      <Tab.Screen name="Complete" component={CompleteList} />
+      <Tab.Screen name="Upcoming" component={UpcomingList} />
+    </Tab.Navigator>
+  );
+};
 
 export default App;

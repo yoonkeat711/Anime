@@ -1,19 +1,19 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import AiringList from '../screens/AiringList';
 import Details from '../screens/Details';
+import Favourites from '../screens/Favourites';
 
-const AiringStack = createNativeStackNavigator();
+const FavouritesStack = createNativeStackNavigator();
 
-const AiringStackScreen = () => {
+const FavouritesStackScreen = () => {
   return (
-    <AiringStack.Navigator>
-      <AiringStack.Screen
-        name="AiringList"
-        component={AiringList}
+    <FavouritesStack.Navigator>
+      <FavouritesStack.Screen
+        name="FavouritesList"
+        component={Favourites}
         options={{headerShown: false}}
       />
-      <AiringStack.Screen
+      <FavouritesStack.Screen
         name="Details"
         component={Details}
         // options={{
@@ -28,8 +28,8 @@ const AiringStackScreen = () => {
         // }}
         options={{headerShown: false}}
       />
-    </AiringStack.Navigator>
+    </FavouritesStack.Navigator>
   );
 };
 
-export default AiringStackScreen;
+export default FavouritesStackScreen;

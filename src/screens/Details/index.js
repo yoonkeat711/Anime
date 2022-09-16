@@ -2,7 +2,7 @@ import React, {useEffect, useCallback, useState} from 'react';
 import {View, Text, Image, ScrollView, StyleSheet} from 'react-native';
 import {combineListIntoString} from '../../utils';
 
-const Details = ({route}) => {
+const Details = ({navigation, route}) => {
   const [details, setDetails] = useState({});
 
   useEffect(() => {
@@ -117,20 +117,25 @@ const Details = ({route}) => {
       },
     ];
 
-    return mapObject.map(item => {
+    return mapObject.map((item, index) => {
       return (
-        <View style={styles.labelContainer}>
+        <View style={styles.labelContainer} key={index}>
           <Text style={styles.labelKey}>{item?.label}: </Text>
-          <Text>{item?.value}</Text>
+          <Text>{!item?.value || item?.value === '' ? '-' : item?.value}</Text>
         </View>
       );
     });
+  };
+
+  const onPressBack = () => {
+    navigation.goBack();
   };
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}>
+      <Text onPress={onPressBack}>Back</Text>
       <Image
         source={{uri: details?.images?.jpg?.image_url}}
         style={styles.image}

@@ -1,8 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {FlatList, ActivityIndicator, StyleSheet} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CardCell from '../../components/CardCell';
 import SearchBar from '../../components/SearchBar';
+import {FAVOURITES_ANIME} from '../../storageKey';
 
 const AiringList = ({navigation}) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -11,7 +12,6 @@ const AiringList = ({navigation}) => {
   const [keyword, setKeyword] = useState('');
   const hasNextPage = useRef(true);
   const STATUS = 'airing';
-  const {top} = useSafeAreaInsets();
 
   useEffect(() => {
     fetchAnimeList();
@@ -31,7 +31,7 @@ const AiringList = ({navigation}) => {
         },
       ).then(res => res.json());
 
-      console.warn(await response);
+      // console.warn(await response);
 
       if (await response) {
         setIsLoading(false);
@@ -80,12 +80,22 @@ const AiringList = ({navigation}) => {
 
     return (
       <CardCell
-        key={index}
+        key={`${index}-${item?.title}`}
         item={item}
         descriptionObject={descriptionObject}
         onPress={onPressCell}
+        onPressSave={onPressSave}
       />
     );
+  };
+
+  const onPressSave = async item => {
+    const list = JSON.parse(await AsyncStorage.getItem(FAVOURITES_ANIME));
+    const storeObject =
+      list?.length <= 0
+        ? JSON.stringify([item])
+        : JSON.stringify(list?.concat(item));
+    await AsyncStorage.setItem(FAVOURITES_ANIME, storeObject);
   };
 
   const fetchNextPage = async () => {
@@ -150,7 +160,7 @@ const AiringList = ({navigation}) => {
       ListHeaderComponent={renderHeader}
       onRefresh={pullToRefresh}
       refreshing={isLoading}
-      style={[styles.container, {top: top}]}
+      style={styles.container}
     />
   );
 };
