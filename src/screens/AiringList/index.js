@@ -17,27 +17,33 @@ const AiringList = ({navigation}) => {
   const {saveList, checkSaved, unSaveList} = useFavouritesContext();
 
   useEffect(() => {
-    fetchAnimeList();
+    fetchAnimeList('', 1, false);
   }, [fetchAnimeList]);
 
-  const fetchAnimeList = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      // console.warn(keyword, currentPage, STATUS, result);
+  const fetchAnimeList = useCallback(
+    async (text, page, resetResult = false) => {
+      try {
+        setIsLoading(true);
 
-      let endpoint = `/anime?q=${keyword}&status=${STATUS}&page=${currentPage}`;
-      const response = await getAnimeList({endpoint: endpoint});
-
-      if (response) {
-        // console.warn(response, 'res');
+        let endpoint = `/anime?q=${text}&status=${STATUS}&page=${page}`;
+        const response = await getAnimeList({endpoint: endpoint});
+        setKeyword(text);
+        setCurrentPage(page);
+        if (response) {
+          setIsLoading(false);
+          setResult(
+            resetResult
+              ? []?.concat(response?.data)
+              : result?.concat(response?.data),
+          );
+          hasNextPage.current = response?.pagination?.has_next_page;
+        }
+      } catch (error) {
         setIsLoading(false);
-        setResult(result?.concat(response?.data));
-        hasNextPage.current = response?.pagination?.has_next_page;
       }
-    } catch (error) {
-      setIsLoading(false);
-    }
-  }, [currentPage, keyword, result, setResult]);
+    },
+    [result, setResult],
+  );
 
   const onPressCell = id => {
     navigation.navigate('Details', {
@@ -94,8 +100,7 @@ const AiringList = ({navigation}) => {
       return;
     }
 
-    setCurrentPage(currentPage + 1);
-    await fetchAnimeList();
+    await fetchAnimeList(keyword, currentPage + 1, false);
   };
 
   const onChangeText = text => {
@@ -103,9 +108,7 @@ const AiringList = ({navigation}) => {
   };
 
   const onChangeTextDone = async () => {
-    setCurrentPage(1);
-    setResult([]);
-    await fetchAnimeList();
+    await fetchAnimeList(keyword, 1, true);
   };
 
   const renderHeader = () => {
@@ -120,9 +123,7 @@ const AiringList = ({navigation}) => {
   };
 
   const pullToRefresh = async () => {
-    setCurrentPage(1);
-    setResult([]);
-    await fetchAnimeList();
+    await fetchAnimeList(keyword, 1, true);
   };
 
   const renderFooter = () => {
@@ -135,30 +136,30 @@ const AiringList = ({navigation}) => {
 
   const keyExtractor = (item, index) => `${item?.title}-${index}`;
 
-  if (isLoading) {
-    let array = [{}, {}, {}, {}, {}];
-    return array.map(_ => {
-      return <ShimmerCardCell />;
-    });
-  } else {
-    return (
-      <>
-        {renderHeader()}
-        <FlatList
-          data={result}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          onEndReached={fetchNextPage}
-          ListFooterComponent={renderFooter}
-          ListEmptyComponent={<EmptyPage message={'No Data Found!'} />}
-          onRefresh={pullToRefresh}
-          refreshing={isLoading}
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer(result?.length <= 0)}
-        />
-      </>
-    );
-  }
+  // if (isLoading) {
+  //   let array = [{}, {}, {}, {}, {}];
+  //   return array.map(_ => {
+  //     return <ShimmerCardCell />;
+  //   });
+  // } else {
+  return (
+    <>
+      {renderHeader()}
+      <FlatList
+        data={result}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        onEndReached={fetchNextPage}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={<EmptyPage message={'No Data Found!'} />}
+        onRefresh={pullToRefresh}
+        refreshing={isLoading}
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer(result?.length <= 0)}
+      />
+    </>
+  );
+  // }
 };
 
 const styles = StyleSheet.create({

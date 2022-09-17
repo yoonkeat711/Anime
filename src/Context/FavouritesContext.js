@@ -10,7 +10,7 @@ export const FavouritesProvider = ({children}) => {
   useEffect(() => {
     const grabListFromStorage = async () => {
       const data = await AsyncStorage.getItem(FAVOURITES_ANIME);
-      setCurrentSavedList(JSON.parse(data));
+      setCurrentSavedList(JSON.parse(data) ?? []);
     };
 
     grabListFromStorage();
@@ -36,7 +36,7 @@ export const FavouritesProvider = ({children}) => {
     const match = currentSavedList?.filter(
       object => object?.mal_id === item?.mal_id,
     );
-    return match.length >= 1;
+    return match?.length >= 1;
   };
 
   const getSavedList = () => {

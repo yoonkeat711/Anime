@@ -30,9 +30,9 @@ const CardCell = ({item, descriptionObject, onPress, onPressSave, isSaved}) => {
           style={styles.image}
         />
         <View>
-          {descriptionObject.map(desc => {
+          {descriptionObject.map((desc, index) => {
             return (
-              <View style={styles.descriptionLabel}>
+              <View style={styles.descriptionLabel} key={index}>
                 <Text style={styles.descLabel}>{desc?.key}: </Text>
                 <Text>{desc?.value ?? '-'}</Text>
               </View>

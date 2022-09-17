@@ -7,6 +7,7 @@ const SearchBar = ({onChangeText, value, placeholder, ...props}) => {
       <TextInput
         onChangeText={onChangeText}
         value={value}
+        autoCapitalize={"none"}
         placeholder={placeholder}
         style={styles.textInput}
         returnKeyType="done"

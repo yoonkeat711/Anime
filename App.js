@@ -65,11 +65,9 @@ const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
   return (
     <Tab.Navigator
-      tabBarOptions={{
-        activeTintColor: PRIMARY_COLOR,
-      }}
       screenOptions={{
         headerShown: false,
+        tabBarActiveTintColor: PRIMARY_COLOR,
       }}>
       <Tab.Screen name="Airing" component={AiringStackScreen} />
       <Tab.Screen name="Complete" component={CompleteList} />
