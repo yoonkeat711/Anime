@@ -3,7 +3,6 @@ import {FlatList, StyleSheet, Text} from 'react-native';
 import CardCell from '../../components/CardCell';
 import EmptyPage from '../../components/EmptyPage';
 import SearchBar from '../../components/SearchBar';
-import ShimmerCardCell from '../../components/ShimmerCardCell';
 import {useFavouritesContext} from '../../Context/FavouritesContext';
 import {getAnimeList} from '../../services';
 
@@ -62,12 +61,12 @@ const CompleteList = ({navigation}) => {
         value: item?.type,
       },
       {
-        key: 'Source',
-        value: item?.source,
+        key: 'Score',
+        value: item?.score,
       },
       {
-        key: 'Episodes',
-        value: item?.episodes,
+        key: 'Year',
+        value: item?.year,
       },
       {
         key: 'Duration',
@@ -136,12 +135,6 @@ const CompleteList = ({navigation}) => {
 
   const keyExtractor = (item, index) => `${item?.title}-${index}`;
 
-  // if (isLoading) {
-  //   let array = [{}, {}, {}, {}, {}];
-  //   return array.map(_ => {
-  //     return <ShimmerCardCell />;
-  //   });
-  // } else {
   return (
     <>
       {renderHeader()}
@@ -159,7 +152,6 @@ const CompleteList = ({navigation}) => {
       />
     </>
   );
-  // }
 };
 
 const styles = StyleSheet.create({

@@ -7,12 +7,15 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import {PRIMARY_COLOR} from '../../colors';
+import {useFavouritesContext} from '../../Context/FavouritesContext';
 import {getAnimeDetails} from '../../services';
 import {combineListIntoString} from '../../utils';
 
 const Details = ({navigation, route}) => {
   const [details, setDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const {saveList, unSaveList, checkSaved} = useFavouritesContext();
 
   useEffect(() => {
     fetchDetails();
@@ -134,6 +137,10 @@ const Details = ({navigation, route}) => {
     navigation.goBack();
   };
 
+  const onPressSave = () => {
+    checkSaved(details) ? unSaveList(details) : saveList(details);
+  };
+
   if (isLoading) {
     return <ActivityIndicator style={styles.loader} size="large" />;
   } else {
@@ -141,7 +148,13 @@ const Details = ({navigation, route}) => {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}>
-        <Text onPress={onPressBack}>Back</Text>
+        <View style={styles.subHeader}>
+          <Text onPress={onPressBack}>Back</Text>
+          <Text onPress={onPressSave} style={{color: PRIMARY_COLOR}}>
+            {checkSaved(details) ? 'Saved' : 'Save'}
+          </Text>
+        </View>
+
         <Image
           source={{uri: details?.images?.jpg?.image_url}}
           style={styles.image}
@@ -184,6 +197,10 @@ const styles = StyleSheet.create({
   loader: {
     alignSelf: 'center',
     flex: 1,
+  },
+  subHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 export default Details;

@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
-
 import CardCell from '../../components/CardCell';
 import {useFavouritesContext} from '../../Context/FavouritesContext';
 import EmptyPage from '../../components/EmptyPage';
