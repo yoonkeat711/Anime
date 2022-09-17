@@ -1,33 +1,20 @@
-import {useFocusEffect} from '@react-navigation/native';
-import React, {useState, useCallback, useEffect} from 'react';
-import {View, FlatList, Text, StyleSheet} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {FAVOURITES_ANIME} from '../../storageKey';
+import React, {useEffect} from 'react';
+import {FlatList, StyleSheet} from 'react-native';
+
 import CardCell from '../../components/CardCell';
+import {useFavouritesContext} from '../../Context/FavouritesContext';
+import EmptyPage from '../../components/EmptyPage';
 const Favourites = ({navigation}) => {
-  const [savedList, setSavedList] = useState([]);
+  const {unSaveList, getSavedList} = useFavouritesContext();
 
-  useEffect(() => {
-    async function setList() {
-      let list = await AsyncStorage.getItem(FAVOURITES_ANIME);
-      setSavedList(JSON.parse(list));
-    }
-    setList();
-    console.warn('d');
-  }, []);
-
-  const grabListFromStorage = useCallback(async () => {
-    const list = await AsyncStorage.getItem(FAVOURITES_ANIME);
-    console.warn(list);
-    setSavedList(list);
-  }, []);
+  useEffect(() => {}, []);
 
   const onPressCard = id => {
     navigation.navigate('Details', {
       id: id,
     });
   };
-  const renderItem = ({item, index}) => {
+  const renderItem = ({item, _}) => {
     const descriptionObject = [
       {
         key: 'Title',
@@ -59,39 +46,40 @@ const Favourites = ({navigation}) => {
         item={item}
         onPress={onPressCard}
         descriptionObject={descriptionObject}
+        isSaved={true}
+        onPressSave={onPressSave}
       />
     );
   };
 
+  const onPressSave = async item => {
+    unSaveList(item);
+  };
+
   const keyExtractor = (item, index) => `${item?.title}-${index}`;
 
-  if (savedList?.length <= 0) {
-    return (
-      <View style={styles.emptyListContainer}>
-        <Text>Ops, No Favourites List At The Moment</Text>
-      </View>
-    );
-  } else {
-    return (
-      <FlatList
-        data={savedList}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        style={styles.listContainer}
-      />
-    );
-  }
+  return (
+    <FlatList
+      data={getSavedList()}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      style={styles.listContainer}
+      showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <EmptyPage message={'Ops, No Favourites List At The Moment'} />
+      }
+      contentContainerStyle={styles.contentContainer}
+    />
+  );
 };
 
 const styles = StyleSheet.create({
-  emptyListContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   listContainer: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  contentContainer: {
+    flex: 1,
   },
 });
 

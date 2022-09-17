@@ -1,6 +1,6 @@
 import React from 'react';
 import {TouchableOpacity, Text, View, Image, StyleSheet} from 'react-native';
-
+import {PRIMARY_COLOR} from './../colors';
 //descrptionObject = [{
 //       key: 'Title',
 //       value: item?.title ?? '-',
@@ -10,7 +10,7 @@ import {TouchableOpacity, Text, View, Image, StyleSheet} from 'react-native';
 //       value: item?.type,
 //     }]
 
-const CardCell = ({item, descriptionObject, onPress, onPressSave}) => {
+const CardCell = ({item, descriptionObject, onPress, onPressSave, isSaved}) => {
   const onPressCell = () => {
     onPress(item?.mal_id);
   };
@@ -41,7 +41,7 @@ const CardCell = ({item, descriptionObject, onPress, onPressSave}) => {
         </View>
       </View>
       <Text style={styles.saveText} onPress={onPressFavourite}>
-        Save
+        {isSaved ? 'Saved' : 'Save'}
       </Text>
       <View style={styles.separator} />
     </TouchableOpacity>
@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
   saveText: {
     alignSelf: 'flex-end',
     fontSize: 10,
+    color: PRIMARY_COLOR,
   },
 });
 

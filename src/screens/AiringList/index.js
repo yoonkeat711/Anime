@@ -1,13 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {FlatList, StyleSheet, Text} from 'react-native';
 import CardCell from '../../components/CardCell';
 import EmptyPage from '../../components/EmptyPage';
 import SearchBar from '../../components/SearchBar';
 import ShimmerCardCell from '../../components/ShimmerCardCell';
+import {useFavouritesContext} from '../../Context/FavouritesContext';
 import {getAnimeList} from '../../services';
-import ApiManager from '../../services/ApiManager';
-import {FAVOURITES_ANIME} from '../../storageKey';
 
 const AiringList = ({navigation}) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,6 +14,7 @@ const AiringList = ({navigation}) => {
   const [keyword, setKeyword] = useState('');
   const hasNextPage = useRef(true);
   const STATUS = 'airing';
+  const {saveList, checkSaved, unSaveList} = useFavouritesContext();
 
   useEffect(() => {
     fetchAnimeList();
@@ -24,11 +23,13 @@ const AiringList = ({navigation}) => {
   const fetchAnimeList = useCallback(async () => {
     try {
       setIsLoading(true);
+      // console.warn(keyword, currentPage, STATUS, result);
 
       let endpoint = `/anime?q=${keyword}&status=${STATUS}&page=${currentPage}`;
       const response = await getAnimeList({endpoint: endpoint});
 
-      if (await response) {
+      if (response) {
+        // console.warn(response, 'res');
         setIsLoading(false);
         setResult(result?.concat(response?.data));
         hasNextPage.current = response?.pagination?.has_next_page;
@@ -36,7 +37,7 @@ const AiringList = ({navigation}) => {
     } catch (error) {
       setIsLoading(false);
     }
-  }, [currentPage, keyword, result]);
+  }, [currentPage, keyword, result, setResult]);
 
   const onPressCell = id => {
     navigation.navigate('Details', {
@@ -79,17 +80,13 @@ const AiringList = ({navigation}) => {
         descriptionObject={descriptionObject}
         onPress={onPressCell}
         onPressSave={onPressSave}
+        isSaved={checkSaved(item)}
       />
     );
   };
 
   const onPressSave = async item => {
-    const list = JSON.parse(await AsyncStorage.getItem(FAVOURITES_ANIME));
-    const storeObject =
-      list?.length <= 0
-        ? JSON.stringify([item])
-        : JSON.stringify(list?.concat(item));
-    await AsyncStorage.setItem(FAVOURITES_ANIME, storeObject);
+    checkSaved(item) ? unSaveList(item) : saveList(item);
   };
 
   const fetchNextPage = async () => {
@@ -101,8 +98,11 @@ const AiringList = ({navigation}) => {
     await fetchAnimeList();
   };
 
-  const onChangeText = async text => {
+  const onChangeText = text => {
     setKeyword(text);
+  };
+
+  const onChangeTextDone = async () => {
     setCurrentPage(1);
     setResult([]);
     await fetchAnimeList();
@@ -114,6 +114,7 @@ const AiringList = ({navigation}) => {
         value={keyword}
         placeholder="Search title here.."
         onChangeText={onChangeText}
+        onSubmitEditing={onChangeTextDone}
       />
     );
   };
@@ -121,7 +122,6 @@ const AiringList = ({navigation}) => {
   const pullToRefresh = async () => {
     setCurrentPage(1);
     setResult([]);
-
     await fetchAnimeList();
   };
 
@@ -140,21 +140,23 @@ const AiringList = ({navigation}) => {
     return array.map(_ => {
       return <ShimmerCardCell />;
     });
-  } else if (result?.length <= 0 && !isLoading) {
-    return <EmptyPage message={'No Data Found!'} />;
   } else {
     return (
-      <FlatList
-        data={result}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        onEndReached={fetchNextPage}
-        ListFooterComponent={renderFooter}
-        ListHeaderComponent={renderHeader}
-        onRefresh={pullToRefresh}
-        refreshing={isLoading}
-        style={styles.container}
-      />
+      <>
+        {renderHeader()}
+        <FlatList
+          data={result}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          onEndReached={fetchNextPage}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={<EmptyPage message={'No Data Found!'} />}
+          onRefresh={pullToRefresh}
+          refreshing={isLoading}
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer(result?.length <= 0)}
+        />
+      </>
     );
   }
 };
@@ -170,6 +172,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingTop: 5,
   },
+  contentContainer: bool => ({
+    flex: bool ? 1 : 0,
+  }),
 });
 
 export default AiringList;
