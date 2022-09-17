@@ -67,7 +67,9 @@ const Favourites = ({navigation}) => {
       ListEmptyComponent={
         <EmptyPage message={'Ops, No Favourites List At The Moment'} />
       }
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={styles.contentContainer(
+        getSavedList().length <= 0,
+      )}
     />
   );
 };
@@ -77,9 +79,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  contentContainer: {
-    flex: 1,
-  },
+  contentContainer: empty => ({
+    flex: empty ? 1 : 0,
+  }),
 });
 
 export default Favourites;
