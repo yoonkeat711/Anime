@@ -5,6 +5,8 @@ import CardCell from '../../components/CardCell';
 import EmptyPage from '../../components/EmptyPage';
 import SearchBar from '../../components/SearchBar';
 import ShimmerCardCell from '../../components/ShimmerCardCell';
+import {getAnimeList} from '../../services';
+import ApiManager from '../../services/ApiManager';
 import {FAVOURITES_ANIME} from '../../storageKey';
 
 const AiringList = ({navigation}) => {
@@ -22,18 +24,9 @@ const AiringList = ({navigation}) => {
   const fetchAnimeList = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `https://api.jikan.moe/v4/anime?q=${keyword}&status=${STATUS}&page=${currentPage}`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'aplication/json',
-          },
-        },
-      ).then(res => res.json());
 
-      // console.warn(await response);
+      let endpoint = `/anime?q=${keyword}&status=${STATUS}&page=${currentPage}`;
+      const response = await getAnimeList({endpoint: endpoint});
 
       if (await response) {
         setIsLoading(false);
@@ -41,7 +34,6 @@ const AiringList = ({navigation}) => {
         hasNextPage.current = response?.pagination?.has_next_page;
       }
     } catch (error) {
-      console.warn(error);
       setIsLoading(false);
     }
   }, [currentPage, keyword, result]);

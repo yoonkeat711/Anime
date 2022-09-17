@@ -1,30 +1,33 @@
 import React, {useEffect, useCallback, useState} from 'react';
-import {View, Text, Image, ScrollView, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import {getAnimeDetails} from '../../services';
 import {combineListIntoString} from '../../utils';
 
 const Details = ({navigation, route}) => {
   const [details, setDetails] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchDetails();
   }, [fetchDetails]);
   const fetchDetails = useCallback(async () => {
     try {
-      const response = await fetch(
-        `https://api.jikan.moe/v4/anime/${route?.params?.id}/full`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'aplication/json',
-          },
-        },
-      ).then(res => res.json());
-      //   console.warn(response);
+      setIsLoading(true);
+
+      const response = await getAnimeDetails({id: route?.params?.id});
       if (response?.data) {
+        setIsLoading(false);
         setDetails(response?.data);
       }
     } catch (err) {
+      setIsLoading(false);
       console.warn(err);
     }
   }, [route?.params?.id]);
@@ -131,19 +134,23 @@ const Details = ({navigation, route}) => {
     navigation.goBack();
   };
 
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}>
-      <Text onPress={onPressBack}>Back</Text>
-      <Image
-        source={{uri: details?.images?.jpg?.image_url}}
-        style={styles.image}
-      />
-      {renderDescription()}
-      <Text style={styles.synopsis}>{details?.synopsis}</Text>
-    </ScrollView>
-  );
+  if (isLoading) {
+    return <ActivityIndicator style={styles.loader} size="large" />;
+  } else {
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}>
+        <Text onPress={onPressBack}>Back</Text>
+        <Image
+          source={{uri: details?.images?.jpg?.image_url}}
+          style={styles.image}
+        />
+        {renderDescription()}
+        <Text style={styles.synopsis}>{details?.synopsis}</Text>
+      </ScrollView>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -173,6 +180,10 @@ const styles = StyleSheet.create({
   synopsis: {
     fontSize: 10,
     paddingTop: 15,
+  },
+  loader: {
+    alignSelf: 'center',
+    flex: 1,
   },
 });
 export default Details;
