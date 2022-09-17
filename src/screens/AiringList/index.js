@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState, useCallback, useRef} from 'react';
-import {FlatList, ActivityIndicator, StyleSheet} from 'react-native';
+import {FlatList, StyleSheet, Text} from 'react-native';
 import CardCell from '../../components/CardCell';
+import EmptyPage from '../../components/EmptyPage';
 import SearchBar from '../../components/SearchBar';
+import ShimmerCardCell from '../../components/ShimmerCardCell';
 import {FAVOURITES_ANIME} from '../../storageKey';
 
 const AiringList = ({navigation}) => {
@@ -115,7 +117,6 @@ const AiringList = ({navigation}) => {
   };
 
   const renderHeader = () => {
-    // if (!isLoading) {
     return (
       <SearchBar
         value={keyword}
@@ -123,7 +124,6 @@ const AiringList = ({navigation}) => {
         onChangeText={onChangeText}
       />
     );
-    // }
   };
 
   const pullToRefresh = async () => {
@@ -135,14 +135,7 @@ const AiringList = ({navigation}) => {
 
   const renderFooter = () => {
     if (isLoading && currentPage !== 1) {
-      return (
-        <ActivityIndicator
-          size="small"
-          animating
-          color="grey"
-          style={styles.loader}
-        />
-      );
+      return <Text style={styles.loadingText}>Loading ..</Text>;
     } else {
       return null;
     }
@@ -150,19 +143,28 @@ const AiringList = ({navigation}) => {
 
   const keyExtractor = (item, index) => `${item?.title}-${index}`;
 
-  return (
-    <FlatList
-      data={result}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      onEndReached={fetchNextPage}
-      ListFooterComponent={renderFooter}
-      ListHeaderComponent={renderHeader}
-      onRefresh={pullToRefresh}
-      refreshing={isLoading}
-      style={styles.container}
-    />
-  );
+  if (isLoading) {
+    let array = [{}, {}, {}, {}, {}];
+    return array.map(_ => {
+      return <ShimmerCardCell />;
+    });
+  } else if (result?.length <= 0 && !isLoading) {
+    return <EmptyPage message={'No Data Found!'} />;
+  } else {
+    return (
+      <FlatList
+        data={result}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        onEndReached={fetchNextPage}
+        ListFooterComponent={renderFooter}
+        ListHeaderComponent={renderHeader}
+        onRefresh={pullToRefresh}
+        refreshing={isLoading}
+        style={styles.container}
+      />
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -171,6 +173,10 @@ const styles = StyleSheet.create({
   },
   loader: {
     paddingVertical: 10,
+  },
+  loadingText: {
+    alignSelf: 'center',
+    paddingTop: 5,
   },
 });
 
