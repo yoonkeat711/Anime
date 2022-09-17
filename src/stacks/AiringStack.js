@@ -16,16 +16,6 @@ const AiringStackScreen = () => {
       <AiringStack.Screen
         name="Details"
         component={Details}
-        // options={{
-        //   title: 'Description',
-        //   headerStyle: {
-        //     backgroundColor: 'lightblue',
-        //   },
-        //   headerTintColor: '#fff',
-        //   headerTitleStyle: {
-        //     fontWeight: 'bold',
-        //   },
-        // }}
         options={{headerShown: false}}
       />
     </AiringStack.Navigator>

@@ -17,6 +17,8 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import FavouritesStackScreen from './src/stacks/FavouritesStack';
 import {PRIMARY_COLOR} from './src/colors';
 import { FavouritesProvider } from './src/Context/FavouritesContext';
+import CompleteStackScreen from './src/stacks/CompleteStack';
+import UpcomingStackScreen from './src/stacks/UpcomingStack';
 
 // const FavouritesContext = createContext();
 const App = () => {
@@ -70,8 +72,8 @@ const BottomTabNavigator = () => {
         tabBarActiveTintColor: PRIMARY_COLOR,
       }}>
       <Tab.Screen name="Airing" component={AiringStackScreen} />
-      <Tab.Screen name="Complete" component={CompleteList} />
-      <Tab.Screen name="Upcoming" component={UpcomingList} />
+      <Tab.Screen name="Complete" component={CompleteStackScreen} />
+      <Tab.Screen name="Upcoming" component={UpcomingStackScreen} />
     </Tab.Navigator>
   );
 };
