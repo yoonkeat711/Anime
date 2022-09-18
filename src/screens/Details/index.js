@@ -156,7 +156,7 @@ const Details = ({navigation, route}) => {
         </View>
 
         <Image
-          source={{uri: details?.images?.jpg?.image_url}}
+          source={{uri: details?.images?.jpg?.large_image_url}}
           style={styles.image}
         />
         {renderDescription()}

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   saveText: {
     alignSelf: 'flex-end',
-    fontSize: 10,
+    fontSize: 12,
     color: PRIMARY_COLOR,
   },
 });
