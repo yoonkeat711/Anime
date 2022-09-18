@@ -5,9 +5,10 @@ import EmptyPage from '../../components/EmptyPage';
 import SearchBar from '../../components/SearchBar';
 import {useFavouritesContext} from '../../Context/FavouritesContext';
 import {getAnimeList} from '../../services';
+import ShimmerCardCell from '../../components/ShimmerCardCell';
 
 const UpcomingList = ({navigation}) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = useRef(1);
   const [result, setResult] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
@@ -16,18 +17,17 @@ const UpcomingList = ({navigation}) => {
   const {saveList, checkSaved, unSaveList} = useFavouritesContext();
 
   useEffect(() => {
-    fetchAnimeList('', 1, false);
+    fetchAnimeList('', false);
   }, [fetchAnimeList]);
 
   const fetchAnimeList = useCallback(
-    async (text, page, resetResult = false) => {
+    async (text, resetResult = false) => {
       try {
         setIsLoading(true);
 
-        let endpoint = `/anime?q=${text}&status=${STATUS}&page=${page}`;
+        let endpoint = `/anime?q=${text}&status=${STATUS}&page=${currentPage.current}`;
         const response = await getAnimeList({endpoint: endpoint});
         setKeyword(text);
-        setCurrentPage(page);
         if (response) {
           setIsLoading(false);
           setResult(
@@ -99,7 +99,8 @@ const UpcomingList = ({navigation}) => {
       return;
     }
 
-    await fetchAnimeList(keyword, currentPage + 1, false);
+    currentPage.current += 1;
+    await fetchAnimeList(keyword, false);
   };
 
   const onChangeText = text => {
@@ -107,7 +108,8 @@ const UpcomingList = ({navigation}) => {
   };
 
   const onChangeTextDone = async () => {
-    await fetchAnimeList(keyword, 1, true);
+    currentPage.current = 1;
+    await fetchAnimeList(keyword, true);
   };
 
   const renderHeader = () => {
@@ -122,11 +124,12 @@ const UpcomingList = ({navigation}) => {
   };
 
   const pullToRefresh = async () => {
-    await fetchAnimeList(keyword, 1, true);
+    currentPage.current = 1;
+    await fetchAnimeList(keyword, true);
   };
 
   const renderFooter = () => {
-    if (isLoading && currentPage !== 1) {
+    if (isLoading && currentPage.current !== 1) {
       return <Text style={styles.loadingText}>Loading ..</Text>;
     } else {
       return null;
@@ -135,23 +138,30 @@ const UpcomingList = ({navigation}) => {
 
   const keyExtractor = (item, index) => `${item?.title}-${index}`;
 
-  return (
-    <>
-      {renderHeader()}
-      <FlatList
-        data={result}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        onEndReached={fetchNextPage}
-        ListFooterComponent={renderFooter}
-        ListEmptyComponent={<EmptyPage message={'No Data Found!'} />}
-        onRefresh={pullToRefresh}
-        refreshing={isLoading}
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer(result?.length <= 0)}
-      />
-    </>
-  );
+  if (isLoading && currentPage.current === 1) {
+    let array = [{}, {}, {}, {}, {}];
+    return array.map((_, index) => {
+      return <ShimmerCardCell key={index} />;
+    });
+  } else {
+    return (
+      <>
+        {renderHeader()}
+        <FlatList
+          data={result}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          onEndReached={fetchNextPage}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={<EmptyPage message={'No Data Found!'} />}
+          onRefresh={pullToRefresh}
+          refreshing={isLoading}
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer(result?.length <= 0)}
+        />
+      </>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
